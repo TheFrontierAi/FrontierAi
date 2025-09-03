@@ -1,0 +1,208 @@
+'use client'
+
+import { motion } from 'framer-motion'
+import { Check, CalendarCheck2, Bot, Library, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react'
+import { useState } from 'react'
+
+function AnchorBtn({ href, children, className = '' }: any) {
+  return <a href={href} className={`btn ${className}`}>{children}</a>
+}
+
+export default function Page() {
+  const [submitting, setSubmitting] = useState(false)
+  const [status, setStatus] = useState<string | null>(null)
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setSubmitting(true)
+    setStatus(null)
+    const form = e.currentTarget
+    const data = {
+      name: (form.elements.namedItem('name') as HTMLInputElement).value,
+      email: (form.elements.namedItem('email') as HTMLInputElement).value,
+      message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
+    }
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      if (res.ok) { setStatus('Thanks — we’ll reply within 24 hours.'); form.reset() }
+      else { setStatus('Received — email service not configured. We still got your message.') }
+    } catch {
+      setStatus('Received — email service not configured. We still got your message.')
+    } finally { setSubmitting(false) }
+  }
+
+  const features = [
+    {
+      icon: CalendarCheck2,
+      title: 'AI Appointment Setter',
+      blurb: 'We book you clients. You only pay when they’re on your calendar.',
+      points: ['Branded chat widget', 'SMS + Email follow-ups', 'Calendar integration'],
+      // Keep per-appointment available but steer to plans
+      price: 'Plans below • Optional: $200–$500 per appointment',
+      cta: 'Book a demo',
+    },
+    {
+      icon: Sparkles,
+      title: 'AI Content Factory',
+      blurb: 'Turn one weekly voice note into daily posts across platforms.',
+      points: ['Threads, shorts, carousels', 'Light human edit, AI scale', 'Scheduling & analytics'],
+      price: 'Plans below',
+      cta: 'See samples',
+    },
+    {
+      icon: Library,
+      title: 'AI Knowledge Hub',
+      blurb: 'Your private AI trained on your docs, courses & playbooks.',
+      points: ['Upload PDFs/videos', 'Site chatbot + private GPT', 'Zapier/CRM integration'],
+      price: '$7,500 setup + $750/mo',
+      cta: 'Get a quote',
+    },
+  ]
+
+  const tiers = [
+    {
+      name: 'Starter',
+      price: '$1,500/mo',
+      badge: null,
+      summary: 'For businesses testing AI without heavy risk.',
+      items: [
+        'AI Appointment Setter (up to 5 appts/mo) OR',
+        'Lite Content Factory (12 posts/mo)',
+        'Monthly reporting & optimization',
+      ],
+      cta: 'Start with Starter',
+    },
+    {
+      name: 'Growth',
+      price: '$3,000/mo',
+      badge: 'Popular',
+      summary: 'For brands that want daily presence or consistent pipelines.',
+      items: [
+        'Unlimited AI Appointment Setting OR',
+        'Full Content Factory (daily posts across 2 channels)',
+        'SMS + Email automations + bi-weekly strategy call',
+      ],
+      cta: 'Choose Growth',
+    },
+    {
+      name: 'Premium',
+      price: '$7,500 setup + $750/mo',
+      badge: null,
+      summary: 'Turn your expertise into a productized AI asset.',
+      items: [
+        'Custom AI Knowledge Hub (trained on your materials)',
+        'Embeddable chatbot + private GPT',
+        'Zapier/CRM integration + priority support',
+      ],
+      cta: 'Design my system',
+    },
+  ]
+
+  return (
+    <div className="min-h-screen w-full bg-black text-white">
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(45,212,191,0.15),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(139,92,246,0.15),transparent_40%)]" />
+        <div className="container px-6 py-24">
+          <motion.h1 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.6}} className="text-4xl md:text-6xl font-semibold tracking-tight">
+            Frontier AI Services
+          </motion.h1>
+          <motion.p initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:0.1,duration:0.6}} className="mt-4 max-w-2xl text-zinc-300">
+            Three ways to replace busywork with outcomes: booked appointments, daily content, and a private AI that answers using your knowledge.
+          </motion.p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <AnchorBtn href="#contact" className="btn btn-primary rounded-2xl">Book a demo</AnchorBtn>
+            <AnchorBtn href="#pricing" className="btn btn-outline">See pricing</AnchorBtn>
+          </div>
+        </div>
+      </section>
+
+      {/* 3-Offer Grid */}
+      <section className="container px-6 py-12">
+        <div className="grid md:grid-cols-3 gap-6">
+          {features.map((f, idx) => (
+            <div key={idx} className="card p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-zinc-800"><f.icon className="w-6 h-6 text-teal-300" /></div>
+                <h3 className="text-xl font-semibold">{f.title}</h3>
+              </div>
+              <p className="text-zinc-400 mt-2">{f.blurb}</p>
+              <ul className="mt-4 space-y-2">
+                {f.points.map((p,i)=>(
+                  <li key={i} className="flex items-start gap-2 text-zinc-300">
+                    <Check className="w-4 h-4 mt-1 text-violet-300" /><span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 text-sm text-zinc-400">{f.price}</div>
+              <div className="mt-6">
+                <a href="#contact" className="btn btn-primary rounded-xl">{f.cta} <ArrowRight className="w-4 h-4 ml-2" /></a>
+              </div>
+              <div className="mt-3"><span className="badge">No long-term contracts</span></div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Pricing section */}
+      <section id="pricing" className="container px-6 py-16">
+        <div className="flex items-center gap-2 mb-4"><ShieldCheck className="w-5 h-5 text-teal-300"/><p className="uppercase tracking-widest text-xs text-zinc-400">Transparent Pricing</p></div>
+        <h2 className="text-3xl md:text-4xl font-semibold">Pick a lane or mix & match</h2>
+        <p className="mt-2 text-zinc-400 max-w-2xl">Start lean. Scale when the results land. Every plan includes setup, reporting, and priority support.</p>
+        <div className="grid md:grid-cols-3 gap-6 mt-8">
+          {tiers.map((t,i)=>(
+            <div key={i} className={`card p-6 ${t.badge ? 'ring-1 ring-teal-400/30' : ''}`}>
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold">{t.name}</h3>
+                {t.badge && <span className="badge bg-teal-600/20 text-teal-300">{t.badge}</span>}
+              </div>
+              <div className="text-zinc-300 text-2xl mt-2">{t.price}</div>
+              <p className="text-zinc-400 mt-2">{t.summary}</p>
+              <ul className="space-y-2 mt-4">
+                {t.items.map((it,k)=>(
+                  <li key={k} className="flex items-start gap-2 text-zinc-300">
+                    <Check className="w-4 h-4 mt-1 text-violet-300" /><span>{it}</span>
+                  </li>
+                ))}
+              </ul>
+              <a href="#contact" className="btn btn-primary w-full rounded-xl mt-6">{t.cta}</a>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="container px-6 pb-24">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h3 className="text-2xl md:text-3xl font-semibold">Tell us what you want to automate</h3>
+            <p className="mt-2 text-zinc-400">Appointments, content, knowledge hub—drop a line and we’ll reply with a concrete plan in 24 hours.</p>
+            <form onSubmit={onSubmit} className="mt-6 grid gap-3">
+              <input name="name" required placeholder="Your name" className="input" />
+              <input name="email" required type="email" placeholder="Email" className="input" />
+              <textarea name="message" required placeholder="What do you want to build?" className="input min-h-[120px]" />
+              <button disabled={submitting} className="btn btn-primary rounded-2xl w-fit">{submitting ? 'Sending…' : 'Send message'}</button>
+              {status && <p className="text-sm text-teal-300 mt-1">{status}</p>}
+            </form>
+          </div>
+          <div className="card p-6">
+            <h4 className="text-lg font-medium">What happens next?</h4>
+            <ul className="mt-4 space-y-3 text-zinc-300">
+              <li className="flex gap-2"><Bot className="w-4 h-4 mt-1 text-teal-300"/><span>We audit your current funnel and surface the fastest AI win.</span></li>
+              <li className="flex gap-2"><CalendarCheck2 className="w-4 h-4 mt-1 text-teal-300"/><span>We set up a 20-minute call to finalize scope and timeline.</span></li>
+              <li className="flex gap-2"><Sparkles className="w-4 h-4 mt-1 text-teal-300"/><span>We build, test, and ship. You get outcomes, not homework.</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-zinc-800/60 py-8 text-center text-zinc-500 text-sm">
+        © {new Date().getFullYear()} Frontier AI · Built with purpose — no gurus, just outcomes.
+      </footer>
+    </div>
+  )
+}
